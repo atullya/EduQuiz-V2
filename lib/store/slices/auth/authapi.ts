@@ -50,3 +50,11 @@ export const getTeacher = async (): Promise<any[]> => {
     throw new Error(err.response?.data?.message || "Fetching teachers failed");
   }
 };
+
+export const logoutUser=async():Promise<void>=>{
+  try {
+    await axiosClient.get("api/users/logout");
+  } catch (err: any) {
+    throw new Error(err.response?.data?.message || "Logout failed");
+  }
+}

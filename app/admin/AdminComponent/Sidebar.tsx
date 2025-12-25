@@ -3,6 +3,9 @@
 import { School, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SideBarItems } from "./SideBarItems";
+import { logoutUser } from "@/lib/store/slices/auth/authapi";
+import { useDispatch } from "react-redux";
+import { logout } from "@/lib/store/slices/auth/authSlice";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -10,13 +13,17 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
-
 const Sidebar = ({
   sidebarOpen,
   setSidebarOpen,
   activeTab,
   setActiveTab,
 }: SidebarProps) => {
+  const dispatch = useDispatch();
+  const handleLogout = async () => {
+    const res = await logoutUser();
+    dispatch(logout());
+  };
   return (
     <div>
       {/* Sidebar */}
@@ -70,9 +77,7 @@ const Sidebar = ({
           {/* Logout */}
           <div className="p-4 border-t border-gray-100 mt-auto">
             <Button
-              onClick={() => {
-                console.log("Logout clicked");
-              }}
+              onClick={handleLogout}
               variant="ghost"
               className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
             >
