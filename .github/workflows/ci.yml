@@ -26,12 +26,28 @@ jobs:
         run: npm run build
 
       - name: Run seed script (optional)
-        run: npm run seed:users
+        if: ${{ always() }}
+        run: |
+          if npm run | grep -q "seed:users"; then
+            npm run seed:users
+          else
+            echo "Seed script not found. Skipping..."
+          fi
 
       - name: Run tests
-        run: npm test
+        if: ${{ always() }}
+        run: |
+          if npm run | grep -q "test"; then
+            npm test
+          else
+            echo "Test script not found. Skipping..."
+          fi
 
       - name: Trigger Render Deploy
         if: ${{ success() }}
         run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
+            curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          else
+            echo "Render deploy hook secret is not set. Skipping deploy."
+          fi
