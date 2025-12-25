@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, GraduationCap, BarChart3, Plus } from "lucide-react";
 
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
+import { getSystemInfo } from "@/lib/store/admin/adminapi";
 
 const AdminOverview = ({
   setActiveTab,
@@ -14,12 +15,30 @@ const AdminOverview = ({
   setActiveTab: (tab: string) => void;
 }) => {
   const user = useSelector((state: RootState) => state.auth.user);
-
-  const [count, _setCount] = useState({
-    totalStudents: 0,
-    totalTeachers: 0,
-    totalClasses: 0,
+  const [count, _setCount] = useState<{
+    totalStudents: number | null;
+    totalTeachers: number | null;
+    totalClasses: number | null;
+  }>({
+    totalStudents: null,
+    totalTeachers: null,
+    totalClasses: null,
   });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getSystemInfo();
+        _setCount({
+          totalStudents: data.students,
+          totalTeachers: data.teachers,
+          totalClasses: data.classes,
+        });
+      } catch (error) {
+        console.error("Error fetching system info:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="w-full">
@@ -41,7 +60,7 @@ const AdminOverview = ({
               Total Students
             </h3>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {count.totalStudents || 0}
+              {count?.totalStudents || 0}
             </p>
             <p className="text-xs sm:text-sm text-gray-500">
               Enrolled this year
@@ -56,7 +75,7 @@ const AdminOverview = ({
               Total Teachers
             </h3>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {count.totalTeachers || 0}
+              {count?.totalTeachers || 0}
             </p>
             <p className="text-xs sm:text-sm text-gray-500">Active faculty</p>
           </CardContent>
@@ -69,7 +88,7 @@ const AdminOverview = ({
               Total Classes
             </h3>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {count.totalClasses || 0}
+              {count?.totalClasses || 0}
             </p>
             <p className="text-xs sm:text-sm text-gray-500">Active classes</p>
           </CardContent>

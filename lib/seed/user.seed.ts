@@ -2,15 +2,14 @@ import mongoose from "mongoose";
 import * as bcrypt from "bcrypt";
 import User from "../models/user.model";
 
-const dbURI:any = process.env.MONGO_URI 
+const dbURI: any = process.env.MONGO_URI;
 
 const seedUsers = async () => {
   try {
-
-    await mongoose.connect(dbURI); 
+    await mongoose.connect(dbURI);
     console.log("Connected to MongoDB");
 
-    const hashedPassword = await bcrypt.hash("password123", 10); 
+    const hashedPassword = await bcrypt.hash("password123", 10);
 
     const admin = new User({
       username: "adminUser",

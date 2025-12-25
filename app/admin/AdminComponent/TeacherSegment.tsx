@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import TeacherModal from "./TeacherModal";
 import EditTeacherModal from "./EditTeacherModal";
 import { getTeachers } from "@/lib/store/teachers/teacherapi";
-// import { getTeachers } from "@/api/teacherApi";
+import AddTeacherModal from "./AddTeacherModal";
 
 const TeacherSegment = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,7 +35,7 @@ const TeacherSegment = () => {
     }
   };
 
-  const handleStudentAdded = () => {
+  const handleTeacherAdded = () => {
     getTeacherDetails();
   };
 
@@ -51,7 +51,7 @@ const TeacherSegment = () => {
   const handleDeleteTeacher = async (teacherId: string) => {
     if (window.confirm("Are you sure you want to delete this teacher?")) {
       try {
-        // ⚠️ keep your existing delete API if already working
+        // Keep your existing delete API here if implemented
         // await deleteTeacher(teacherId)
         getTeacherDetails();
       } catch (error) {
@@ -60,7 +60,7 @@ const TeacherSegment = () => {
     }
   };
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
 
@@ -111,19 +111,16 @@ const TeacherSegment = () => {
         </div>
       </div>
 
-      {/* ⏳ LOADING */}
       {loading && (
         <div className="text-center py-8 text-gray-500">
           Loading teachers...
         </div>
       )}
 
-      {/* ❌ ERROR */}
       {error && (
         <div className="text-center py-8 text-red-500 font-medium">{error}</div>
       )}
 
-      {/* 📋 UI BELOW IS 100% UNCHANGED */}
       <div className="space-y-4">
         {!loading && !error && filteredTeachers.length > 0
           ? filteredTeachers.map((teacher) => (
@@ -189,10 +186,10 @@ const TeacherSegment = () => {
             )}
       </div>
 
-      <TeacherModal
+      <AddTeacherModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        onStudentAdded={handleStudentAdded}
+        onTeacherAdded={handleTeacherAdded}
       />
 
       <EditTeacherModal

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { editUser } from "@/lib/store/slices/auth/authapi";
 
 interface EditStudentModalProps {
   open: boolean;
@@ -35,14 +36,14 @@ const EditStudentModal: React.FC<EditStudentModalProps> = ({
     dateOfBirth: "",
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (student) {
       setFormData({
         username: student.username || "",
         email: student.email || "",
-        password: "", // Don't pre-populate password
+        password: "",
         firstName: student.profile?.firstName || "",
         lastName: student.profile?.lastName || "",
         phone: student.profile?.phone || "",
@@ -54,23 +55,23 @@ const EditStudentModal: React.FC<EditStudentModalProps> = ({
     }
   }, [student]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!student?._id) return;
 
-    // Since API isn't ready, simulate success and call onStudentUpdated
-    setTimeout(() => {
-      const updatedStudent = {
-        ...student,
+    setLoading(true);
+
+    try {
+      const payload = {
         username: formData.username,
         email: formData.email,
+        ...(formData.password && { password: formData.password }),
         profile: {
-          ...student.profile,
           firstName: formData.firstName,
           lastName: formData.lastName,
           phone: formData.phone,
@@ -78,156 +79,115 @@ const EditStudentModal: React.FC<EditStudentModalProps> = ({
           dateOfBirth: formData.dateOfBirth,
         },
       };
-      onStudentUpdated(updatedStudent);
-      onOpenChange(false);
 
-      // Reset form
-      setFormData({
-        username: "",
-        email: "",
-        password: "",
-        firstName: "",
-        lastName: "",
-        phone: "",
-        address: "",
-        dateOfBirth: "",
-      });
-      setIsLoading(false);
-    }, 1000);
+      const updated = await editUser(student._id, payload);
+      onStudentUpdated(updated);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Failed to update student");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900">
-            Edit Student Details
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Edit Student</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+            <div>
+              <Label>Username</Label>
               <Input
-                id="username"
                 name="username"
                 value={formData.username}
-                onChange={handleInputChange}
-                placeholder="Enter username"
-                required
-                autoComplete="off"
+                onChange={handleChange}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div>
+              <Label>Email</Label>
               <Input
-                id="email"
                 name="email"
                 type="email"
                 value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Enter email"
-                required
-                autoComplete="off"
+                onChange={handleChange}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">
-                Password (leave blank to keep current)
-              </Label>
+            <div>
+              <Label>Password (optional)</Label>
               <Input
-                id="password"
                 name="password"
                 type="password"
                 value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Enter new password (optional)"
-                autoComplete="new-password"
+                onChange={handleChange}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+              <div>
+                <Label>First Name</Label>
                 <Input
-                  id="firstName"
                   name="firstName"
                   value={formData.firstName}
-                  onChange={handleInputChange}
-                  placeholder="Enter first name"
-                  required
-                  autoComplete="off"
+                  onChange={handleChange}
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+              <div>
+                <Label>Last Name</Label>
                 <Input
-                  id="lastName"
                   name="lastName"
                   value={formData.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Enter last name"
-                  required
-                  autoComplete="off"
+                  onChange={handleChange}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+            <div>
+              <Label>Phone</Label>
               <Input
-                id="phone"
                 name="phone"
                 value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Enter phone number"
-                required
-                autoComplete="off"
+                onChange={handleChange}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+            <div>
+              <Label>Address</Label>
               <Input
-                id="address"
                 name="address"
                 value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Enter address"
-                required
-                autoComplete="off"
+                onChange={handleChange}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <div>
+              <Label>Date of Birth</Label>
               <Input
-                id="dateOfBirth"
-                name="dateOfBirth"
                 type="date"
+                name="dateOfBirth"
                 value={formData.dateOfBirth}
-                onChange={handleInputChange}
-                required
-                autoComplete="off"
+                onChange={handleChange}
               />
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isLoading}
+              disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Updating..." : "Update Student"}
+            <Button type="submit" disabled={loading}>
+              {loading ? "Updating..." : "Update Student"}
             </Button>
           </div>
         </form>

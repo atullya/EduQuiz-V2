@@ -9,8 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-/* ================= TYPES ================= */
+import { editUser } from "@/lib/store/slices/auth/authapi";
 
 interface TeacherProfile {
   firstName: string;
@@ -31,7 +30,7 @@ interface EditTeacherModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   teacher: Teacher | null;
-  onTeacherUpdated: () => void;
+  onTeacherUpdated: (updatedTeacher: Teacher) => void;
 }
 
 interface FormDataState {
@@ -43,8 +42,6 @@ interface FormDataState {
   phone: string;
   address: string;
 }
-
-/* ================= COMPONENT ================= */
 
 const EditTeacherModal = ({
   open,
@@ -63,6 +60,7 @@ const EditTeacherModal = ({
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     if (teacher) {
@@ -75,6 +73,7 @@ const EditTeacherModal = ({
         phone: teacher.profile?.phone || "",
         address: teacher.profile?.address || "",
       });
+      setError("");
     }
   }, [teacher]);
 
@@ -84,16 +83,31 @@ const EditTeacherModal = ({
       ...prev,
       [name]: value,
     }));
+    setError("");
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    if (!teacher?._id) return;
+
     setIsLoading(true);
+    setError("");
 
-    console.log("Updated teacher data (local only):", formData);
+    try {
+      const payload = {
+        username: formData.username,
+        email: formData.email,
+        ...(formData.password && { password: formData.password }),
+        profile: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone,
+          address: formData.address,
+        },
+      };
 
-    setTimeout(() => {
-      onTeacherUpdated();
+      const updatedTeacher = await editUser(teacher._id, payload); // API call
+      onTeacherUpdated(updatedTeacher); // pass updated teacher to parent
       onOpenChange(false);
 
       setFormData({
@@ -105,9 +119,11 @@ const EditTeacherModal = ({
         phone: "",
         address: "",
       });
-
+    } catch (err: any) {
+      setError(err.message || "Failed to update teacher");
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -118,6 +134,8 @@ const EditTeacherModal = ({
             Edit Teacher Details
           </DialogTitle>
         </DialogHeader>
+
+        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
           <div className="grid gap-4">
@@ -172,7 +190,6 @@ const EditTeacherModal = ({
                   className="rounded-xl border-gray-300"
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <Input

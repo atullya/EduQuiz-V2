@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     phone: String,
     address: String,
-    dateOfBirth: Date,
     studentId: String,
     class: String,
     section: String,

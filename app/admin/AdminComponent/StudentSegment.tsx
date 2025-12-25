@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import ProtectedRoute from "@/app/ProtectedRoute";
 import AddStudentModal from "./AddStudentModal";
-import { getStudents } from "@/lib/store/students/studentsapi";
+import { deleteStudents, getStudents } from "@/lib/store/students/studentsapi";
 import EditStudentModal from "./EditStudentModal";
 
 const StudentSegment = () => {
@@ -62,6 +62,15 @@ const StudentSegment = () => {
 
   const handleDeleteStudent = (id: string) => {
     if (confirm("Are you sure you want to delete this student?")) {
+      const deleteStudent = async () => {
+        try {
+          await deleteStudents(id);
+        } catch (error) {
+          console.error("Failed to delete student", error);
+          alert("Failed to delete student");
+        }
+      };
+      deleteStudent();
       const updatedList = studentDetails.filter((s) => s._id !== id);
       setStudentDetails(updatedList);
       setFilteredStudents(updatedList);
@@ -74,12 +83,14 @@ const StudentSegment = () => {
     setFilteredStudents(updatedList);
   };
 
-  const handleStudentUpdated = (student: any) => {
-    const updatedList = studentDetails.map((s) =>
-      s._id === student._id ? student : s
-    );
-    setStudentDetails(updatedList);
-    setFilteredStudents(updatedList);
+  const handleStudentUpdated = async () => {
+    try {
+      const students = await getStudents();
+      setStudentDetails(students);
+      setFilteredStudents(students);
+    } catch (error) {
+      console.error("Failed to refresh students", error);
+    }
   };
 
   return (

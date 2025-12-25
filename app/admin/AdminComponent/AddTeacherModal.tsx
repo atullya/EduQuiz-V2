@@ -29,47 +29,52 @@ import {
   EyeOff,
   UserPlus,
 } from "lucide-react";
-interface StudentProfile {
+
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/store/store";
+import { fetchClasses } from "@/lib/store/classes/classSlices";
+import { classApi } from "@/lib/store/classes/classApi";
+import { registerUser } from "@/lib/store/slices/auth/authapi";
+
+interface TeacherProfile {
   firstName: string;
   lastName: string;
   phone: string;
   address?: string;
-
-  class: string;
-  section: string;
+  class?: string;
+  section?: string;
 }
 
-interface Student {
+interface Teacher {
   _id: string;
   username: string;
   email: string;
   role: string;
-  profile: StudentProfile;
+  profile: TeacherProfile;
 }
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/store/store";
-import { fetchClasses } from "@/lib/store/classes/classSlices";
-import { registerUser } from "@/lib/store/slices/auth/authapi";
-import { classApi } from "@/lib/store/classes/classApi";
 
-interface AddStudentModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onStudentAdded?: (student: Student) => void;
-}
 interface ClassType {
   _id: string;
   grade: string;
   section: string;
-  students: string[];
+  teachers: string[];
 }
-const AddStudentModal = ({
+
+interface AddTeacherModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onTeacherAdded?: (teacher: Teacher) => void;
+}
+
+const AddTeacherModal = ({
   open,
   onOpenChange,
-  onStudentAdded,
-}: AddStudentModalProps) => {
+  onTeacherAdded,
+}: AddTeacherModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { classes } = useSelector((state: RootState) => state.class) as {
+  const { classes } = useSelector(
+    (state: RootState) => state.class
+  ) as unknown as {
     classes: ClassType[];
   };
 
@@ -77,13 +82,12 @@ const AddStudentModal = ({
     username: "",
     email: "",
     password: "",
-    role: "student",
+    role: "teacher",
     profile: {
       firstName: "",
       lastName: "",
       phone: "",
       address: "",
-
       class: "",
       section: "",
     },
@@ -95,7 +99,7 @@ const AddStudentModal = ({
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Fetch classes from Redux store
+  // Fetch classes from Redux
   useEffect(() => {
     dispatch(fetchClasses());
   }, [dispatch]);
@@ -146,7 +150,10 @@ const AddStudentModal = ({
     const random = Math.floor(Math.random() * 1000)
       .toString()
       .padStart(3, "0");
-    return `${firstName}.${lastName}${random}`;
+    setFormData((prev) => ({
+      ...prev,
+      username: `${firstName}.${lastName}${random}`,
+    }));
   };
 
   const validateForm = () => {
@@ -183,13 +190,12 @@ const AddStudentModal = ({
       username: "",
       email: "",
       password: "",
-      role: "student",
+      role: "teacher",
       profile: {
         firstName: "",
         lastName: "",
         phone: "",
         address: "",
-
         class: "",
         section: "",
       },
@@ -208,20 +214,18 @@ const AddStudentModal = ({
     setError("");
 
     try {
-      const user = await registerUser(formData);
+      const teacher = await registerUser(formData);
+      if (!teacher || !teacher._id) throw new Error("Teacher creation failed");
 
-      if (!user || !user._id) {
-        throw new Error("User creation failed");
-      }
+      // Assign teacher to class
       const selectedClass = classes.find(
         (cls) =>
           cls.grade === formData.profile.class &&
           cls.section === formData.profile.section
       );
-
       if (selectedClass) {
         await classApi.updateClass(selectedClass._id!, {
-          students: [user._id],
+          teacher: { _id: teacher._id },
         });
       }
 
@@ -229,7 +233,7 @@ const AddStudentModal = ({
       setTimeout(() => {
         resetForm();
         onOpenChange(false);
-        onStudentAdded?.(user);
+        onTeacherAdded?.(teacher);
       }, 1500);
     } catch (err: unknown) {
       const errorMessage =
@@ -240,7 +244,7 @@ const AddStudentModal = ({
           }
         ).response?.data?.message ||
         (err as { message?: string }).message ||
-        "Failed to create student";
+        "Failed to create teacher";
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -252,11 +256,10 @@ const AddStudentModal = ({
       <DialogContent className="w-full max-w-5xl max-h-[95vh] overflow-y-auto bg-gradient-to-br from-blue-50 to-purple-50">
         <DialogHeader className="text-center pb-4">
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center justify-center gap-2">
-            <UserPlus className="h-5 w-5 text-blue-600" />
-            Add New Student
+            <UserPlus className="h-5 w-5 text-blue-600" /> Add New Teacher
           </DialogTitle>
           <DialogDescription className="text-gray-600">
-            Fill in the student&apos;s information to create their account
+            Fill in the teacher's information to create their account
           </DialogDescription>
         </DialogHeader>
 
@@ -264,7 +267,7 @@ const AddStudentModal = ({
           <Alert className="border-green-200 bg-green-50 mb-4">
             <AlertCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800">
-              Student account created successfully!
+              Teacher account created successfully!
             </AlertDescription>
           </Alert>
         )}
@@ -346,12 +349,7 @@ const AddStudentModal = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        username: generateUsername(),
-                      }))
-                    }
+                    onClick={generateUsername}
                     disabled={
                       !formData.profile.firstName ||
                       !formData.profile.lastName ||
@@ -439,6 +437,17 @@ const AddStudentModal = ({
             </div>
           </div>
 
+          {/* Optional Address */}
+          <div className="space-y-4">
+            <Label>Address</Label>
+            <Input
+              name="profile.address"
+              value={formData.profile.address}
+              onChange={handleInputChange}
+              disabled={isSubmitting}
+            />
+          </div>
+
           {error && (
             <Alert variant="destructive">
               <AlertCircle />
@@ -465,13 +474,11 @@ const AddStudentModal = ({
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
                 </>
               ) : (
                 <>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Student
+                  <Plus className="mr-2 h-4 w-4" /> Create Teacher
                 </>
               )}
             </Button>
@@ -482,4 +489,4 @@ const AddStudentModal = ({
   );
 };
 
-export default AddStudentModal;
+export default AddTeacherModal;

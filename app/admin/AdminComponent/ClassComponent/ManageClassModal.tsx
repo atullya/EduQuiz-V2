@@ -91,19 +91,15 @@ export default function ManageClassModal({
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
 
-  // --- 1. DATA PROCESSOR ---
-  // Converts the Incoming Data to Form Format
   const processDataToForm = (data: any): ClassFormData => {
     if (!data) return defaultState;
 
-    // Handle Teacher (Object or String)
     let teacherId = "none";
     if (data.teacher) {
       teacherId =
         typeof data.teacher === "object" ? data.teacher._id : data.teacher;
     }
 
-    // Handle Students (Array of Objects or Strings)
     let studentIds: string[] = [];
     if (data.students && Array.isArray(data.students)) {
       studentIds = data.students.map((s: any) =>
@@ -127,30 +123,24 @@ export default function ManageClassModal({
   // --- 2. SET DATA ON OPEN ---
   useEffect(() => {
     if (isOpen && initialData) {
-      // We use the data passed from parent immediately.
-      // We DO NOT fetch the class data again to prevent the "reset" bug.
       setFormData(processDataToForm(initialData));
     } else if (isOpen && !initialData) {
       setFormData(defaultState);
     }
   }, [isOpen, initialData]);
 
-  // --- 3. FETCH ONLY TEACHERS AND STUDENTS ---
   useEffect(() => {
     if (!isOpen) return;
 
     const loadOptions = async () => {
       setFetching(true);
       try {
-        // ONLY fetch the dropdown options.
-        // Do NOT fetch class details here.
         const [tData, sData] = await Promise.all([getTeacher(), getStudent()]);
 
         setTeachers(tData || []);
         setStudents(sData || []);
       } catch (err) {
         console.error("Error loading options", err);
-        // Don't show error to user, just log it, so form remains usable
       } finally {
         setFetching(false);
       }
@@ -369,7 +359,7 @@ export default function ManageClassModal({
                   <SelectValue placeholder="Select Teacher" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No Teacher</SelectItem>
+                  <SelectItem value="none">Select a teacher</SelectItem>
                   {teachers.map((t) => (
                     <SelectItem key={t._id} value={t._id}>
                       {getTeacherName(t._id)}
