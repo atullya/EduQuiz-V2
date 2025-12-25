@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import Classs from "@/lib/models/class.model";
-import User from "@/lib/models/user.model";
+
 import { asyncHandler } from "@/lib/middleware/asyncHandler";
 import { withAuth } from "@/lib/middleware/withAuth";
 import { NextResponse } from "next/server";
