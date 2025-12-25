@@ -30,3 +30,11 @@ jobs:
 
       - name: Run seed script (optional)
         run: npm run seed:users
+
+      - name: Run tests
+        run: npm test
+
+      - name: Trigger Render Deploy
+        if: ${{ success() }}
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
