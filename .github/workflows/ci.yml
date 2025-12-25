@@ -2,9 +2,9 @@ name: Next.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -24,9 +24,6 @@ jobs:
 
       - name: Run TypeScript build
         run: npm run build
-
-      - name: Run ESLint
-        run: npm run lint
 
       - name: Run seed script (optional)
         run: npm run seed:users

@@ -29,7 +29,23 @@ import {
   EyeOff,
   UserPlus,
 } from "lucide-react";
+interface StudentProfile {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+  dateOfBirth: string | null;
+  class: string;
+  section: string;
+}
 
+interface Student {
+  _id: string;
+  username: string;
+  email: string;
+  role: string;
+  profile: StudentProfile;
+}
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/store/store";
 import { fetchClasses } from "@/lib/store/classes/classSlices";
@@ -39,9 +55,14 @@ import { classApi } from "@/lib/store/classes/classApi";
 interface AddStudentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onStudentAdded?: (student: any) => void;
+  onStudentAdded?: (student: Student) => void;
 }
-
+interface ClassType {
+  _id: string;
+  grade: string;
+  section: string;
+  students: string[];
+}
 const AddStudentModal = ({
   open,
   onOpenChange,
@@ -49,7 +70,7 @@ const AddStudentModal = ({
 }: AddStudentModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const { classes } = useSelector((state: RootState) => state.class) as {
-    classes: any[];
+    classes: ClassType[];
   };
 
   const [formData, setFormData] = useState({
@@ -209,10 +230,17 @@ const AddStudentModal = ({
         onOpenChange(false);
         onStudentAdded?.(user);
       }, 1500);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || err.message || "Failed to create student"
-      );
+    } catch (err: unknown) {
+      const errorMessage =
+        (
+          err as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        ).response?.data?.message ||
+        (err as { message?: string }).message ||
+        "Failed to create student";
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -227,7 +255,7 @@ const AddStudentModal = ({
             Add New Student
           </DialogTitle>
           <DialogDescription className="text-gray-600">
-            Fill in the student's information to create their account
+            Fill in the student&apos;s information to create their account
           </DialogDescription>
         </DialogHeader>
 

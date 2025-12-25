@@ -1,16 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  BookOpen,
-  Users,
-  GraduationCap,
-  BarChart3,
-  Activity,
-  Plus,
-} from "lucide-react";
+import { BookOpen, Users, GraduationCap, BarChart3, Plus } from "lucide-react";
 
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
@@ -22,7 +15,7 @@ const AdminOverview = ({
 }) => {
   const user = useSelector((state: RootState) => state.auth.user);
 
-  const [count, setCount] = useState({
+  const [count, _setCount] = useState({
     totalStudents: 0,
     totalTeachers: 0,
     totalClasses: 0,

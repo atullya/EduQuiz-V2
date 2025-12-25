@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/store/store";
+import { AppDispatch } from "@/lib/store/store";
 import {
   Dialog,
   DialogContent,
@@ -72,7 +72,14 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
     "History",
     "Geography",
   ];
-  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const weekDays = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -88,7 +95,9 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
   const handleScheduleChange = (day: string, checked: boolean) => {
     setFormData((prev) => ({
       ...prev,
-      schedule: checked ? [...prev.schedule, day] : prev.schedule.filter((d) => d !== day),
+      schedule: checked
+        ? [...prev.schedule, day]
+        : prev.schedule.filter((d) => d !== day),
     }));
     setError("");
   };
@@ -99,7 +108,8 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
     if (!formData.grade) return setError("Grade is required"), false;
     if (formData.subjects.length !== 1)
       return setError("Exactly one subject must be selected"), false;
-    if (!formData.roomNo.trim()) return setError("Room number is required"), false;
+    if (!formData.roomNo.trim())
+      return setError("Room number is required"), false;
     if (formData.schedule.length === 0)
       return setError("At least one schedule day is required"), false;
 
@@ -111,7 +121,14 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
   };
 
   const resetForm = () => {
-    setFormData({ name: "", section: "", grade: "", subjects: [], roomNo: "", schedule: [] });
+    setFormData({
+      name: "",
+      section: "",
+      grade: "",
+      subjects: [],
+      roomNo: "",
+      schedule: [],
+    });
     setError("");
     setSuccess(false);
   };
@@ -125,7 +142,11 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
     try {
       const result = dispatch(createClass(formData));
       if (createClass.rejected.match(result)) {
-        throw new Error(typeof result.payload === 'string' ? result.payload : "Failed to create class");
+        throw new Error(
+          typeof result.payload === "string"
+            ? result.payload
+            : "Failed to create class"
+        );
       }
 
       setSuccess(true);
@@ -134,8 +155,13 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
         onOpenChange(false);
         onClassAdded?.();
       }, 1000);
-    } catch (err: any) {
-      setError(err.message || "Failed to create class");
+    } catch (err: unknown) {
+       const errorMessage =
+    (err as { response?: { data?: { message?: string } }; message?: string })
+      .response?.data?.message ||
+    (err as { message?: string }).message ||
+    "Failed to create student";
+  setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -237,7 +263,9 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
 
           {/* Subject */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Subject *</h3>
+            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">
+              Subject *
+            </h3>
             <Select
               value={formData.subjects[0] || ""}
               onValueChange={(value) =>
@@ -260,17 +288,24 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
 
           {/* Schedule */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Schedule *</h3>
+            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">
+              Schedule *
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {weekDays.map((day) => (
                 <div key={day} className="flex items-center space-x-2">
                   <Checkbox
                     id={`day-${day}`}
                     checked={formData.schedule.includes(day)}
-                    onCheckedChange={(checked) => handleScheduleChange(day, checked === true)}
+                    onCheckedChange={(checked) =>
+                      handleScheduleChange(day, checked === true)
+                    }
                     disabled={isSubmitting}
                   />
-                  <Label htmlFor={`day-${day}`} className="text-sm text-gray-700 cursor-pointer">
+                  <Label
+                    htmlFor={`day-${day}`}
+                    className="text-sm text-gray-700 cursor-pointer"
+                  >
                     {day}
                   </Label>
                 </div>
@@ -297,10 +332,15 @@ const AddClassModal: React.FC<AddClassModalProps> = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Class...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating
+                  Class...
                 </>
               ) : (
                 <>

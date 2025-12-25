@@ -9,23 +9,32 @@ import ManageClassModal, { ClassFormData } from "./ManageClassModal";
 import { RootState, AppDispatch } from "@/lib/store/store";
 import { fetchClasses, deleteClass } from "@/lib/store/classes/classSlices";
 import { classApi } from "@/lib/store/classes/classApi";
-
+export interface ClassType {
+  _id: string;
+  name: string;
+  grade: string;
+  section: string;
+  roomNo?: string;
+  students?: string[];
+  teacher?: {
+    _id: string;
+    username: string;
+  } | null;
+}
 const ClassSegment = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { classes, loading } = useSelector((state: RootState) => state.class);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // CHANGED: We store the whole object now, not just ID
-  const [selectedClass, setSelectedClass] = useState<any | null>(null);
+  const [selectedClass, setSelectedClass] = useState<ClassType | null>(null);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchClasses());
   }, [dispatch]);
 
-  // CHANGED: Accept the full class object
-  const handleManageClick = (cls: any) => {
+  const handleManageClick = (cls: ClassType) => {
     setSelectedClass(cls); // Store the data
     setIsManageModalOpen(true);
   };
@@ -107,8 +116,9 @@ const ClassSegment = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      // CHANGED: Pass the entire 'cls' object
-                      onClick={() => handleManageClick(cls)}
+                      onClick={() =>
+                        cls._id && handleManageClick(cls as ClassType)
+                      }
                       className="border-purple-500 text-purple-500 hover:bg-purple-50"
                     >
                       <Edit className="mr-1 h-4 w-4" /> Manage
@@ -138,7 +148,6 @@ const ClassSegment = () => {
         onClassAdded={() => dispatch(fetchClasses())}
       />
 
-      {/* CHANGED: Pass selectedClass as initialData */}
       <ManageClassModal
         isOpen={isManageModalOpen}
         initialData={selectedClass}

@@ -26,12 +26,10 @@ import {
   MapPin,
   Clock,
   CheckCircle,
-  AlertCircle,
   Loader2,
   Save,
 } from "lucide-react";
 import { getStudent, getTeacher } from "@/lib/store/slices/auth/authapi";
-// Note: We removed classApi import because we rely on Parent data now to avoid the reset bug
 
 interface Teacher {
   _id: string;
@@ -221,8 +219,6 @@ export default function ManageClassModal({
           </Alert>
         )}
 
-        {/* Only show loading spinner if we are waiting for Teachers/Students lists, 
-            but keep form visible if we have class data */}
         {fetching && teachers.length === 0 ? (
           <div className="flex justify-center py-4">
             <Loader2 className="animate-spin text-blue-500" />
