@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-  "seed:users": "tsx lib/seed/user.seed.ts"
+    "test": "echo \"No tests yet\" && exit 0",
+    "seed:users": "tsx lib/seed/user.seed.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
