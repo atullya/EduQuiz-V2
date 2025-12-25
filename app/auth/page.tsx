@@ -72,8 +72,7 @@ const LoginPage = () => {
 
       setIsModalOpen(false);
 
-      // Redirect based on role
-      if (data.role === "teacher") router.push("/admin");
+      if (data.role === "teacher") router.push("/teacher");
       else if (data.role === "admin") router.push("/admin");
       else if (data.role === "student")
         window.location.href = "/studentDashboard";

@@ -2,12 +2,11 @@
 
 import { School, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SideBarItems } from "./SideBarItems";
 import { logoutUser } from "@/lib/store/slices/auth/authapi";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/store/slices/auth/authSlice";
-import { useRouter } from "next/router"; // Import useRouter
 import { redirect } from "next/navigation";
+import { SideBarItems } from "./SidebarItems";
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;

@@ -1,4 +1,3 @@
-import { Ro } from "./../../../../node_modules/@jridgewell/trace-mapping/src/types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -91,7 +90,6 @@ const authSlice = createSlice({
       state.loading = action.payload;
     },
     refreshTokenSuccess(state, action: PayloadAction<AuthResponse>) {
-      // Merge user info to preserve any existing fields
       state.user = { ...state.user, ...action.payload.user };
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
