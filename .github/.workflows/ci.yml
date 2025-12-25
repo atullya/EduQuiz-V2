@@ -1,20 +1,20 @@
-name: Backend CI
+name: Next.js CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -22,8 +22,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run type check
+      - name: Run TypeScript build
         run: npm run build
 
-      - name: Run app (sanity check)
-        run: node -e "console.log('Build successful 🚀')"
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run seed script (optional)
+        run: npm run seed:users
