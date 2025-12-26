@@ -1,7 +1,6 @@
 import { APIError } from "@/lib/middleware/APIError";
 import { asyncHandler } from "@/lib/middleware/asyncHandler";
 import { withAdmin } from "@/lib/middleware/withAdmin";
-import { withAuth } from "@/lib/middleware/withAuth";
 import User from "@/lib/models/user.model";
 import { successResponse } from "@/lib/utils/responseHandler";
 import { NextRequest } from "next/server";

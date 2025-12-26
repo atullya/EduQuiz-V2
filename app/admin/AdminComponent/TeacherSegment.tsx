@@ -5,9 +5,8 @@ import { Plus, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import TeacherModal from "./TeacherModal";
 import EditTeacherModal from "./EditTeacherModal";
-import { getTeachers } from "@/lib/store/teachers/teacherapi";
+import { deleteTeachers, getTeachers } from "@/lib/store/teachers/teacherapi";
 import AddTeacherModal from "./AddTeacherModal";
 
 const TeacherSegment = () => {
@@ -51,9 +50,16 @@ const TeacherSegment = () => {
   const handleDeleteTeacher = async (teacherId: string) => {
     if (window.confirm("Are you sure you want to delete this teacher?")) {
       try {
-        // Keep your existing delete API here if implemented
-        // await deleteTeacher(teacherId)
-        getTeacherDetails();
+        const deleteTeacher = async () => {
+          try {
+            await deleteTeachers(teacherId);
+          } catch (error) {
+            console.error("Failed to delete teacher", error);
+            alert("Failed to delete teacher");
+          }
+        };
+        await deleteTeachers(teacherId);
+        await getTeacherDetails();
       } catch (error) {
         alert("Failed to delete teacher. Please try again.");
       }
