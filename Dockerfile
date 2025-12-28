@@ -8,6 +8,7 @@ WORKDIR /app
 # This allows caching dependencies in Docker
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY .env ./
 
 # Step 4: Install dependencies
 RUN npm install
