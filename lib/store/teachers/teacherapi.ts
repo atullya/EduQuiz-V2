@@ -8,3 +8,8 @@ export const deleteTeachers = async (teacherID: string) => {
   const response = await axiosClient.delete(`/api/teacher/delete/${teacherID}`);
   return response.data;
 };
+
+export const teacherStats = async (teacherID: string) => {
+  const response = await axiosClient.get(`/api/teacher/stats/${teacherID}`);
+  return response.data;
+};
