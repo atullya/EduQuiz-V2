@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import OverviewPage from "./OverviewPage";
-
+import AssignmentPage from "./AssignmentPage";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -23,13 +23,15 @@ const Layout = () => {
         }`}
       >
         <div className="p-4 sm:p-6 lg:p-8">
-          {activeTab === "overview" && (<OverviewPage setActiveTab={setActiveTab}/>)}
+          {activeTab === "overview" && (
+            <OverviewPage setActiveTab={setActiveTab} />
+          )}
           {activeTab === "classes" && "asdfasf"}
-          {activeTab === "assignments" && "asdfasf"}
+          {activeTab === "assignments" && (
+            <AssignmentPage setActiveTab={setActiveTab} />
+          )}
           {activeTab === "analytics" && "asdfasf"}
           {activeTab === "reports" && "asdfasf"}
-
-
         </div>
       </main>
     </div>
