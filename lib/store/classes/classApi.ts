@@ -1,5 +1,6 @@
 // src/services/classApi.ts
 import axiosClient from "../axiosClient";
+import { getStudent } from "../slices/auth/authapi";
 
 export interface ClassData {
   _id?: string;
@@ -36,6 +37,10 @@ export const classApi = {
   getTeacherStats: async (teacherId: string) => {
     const res = await axiosClient.get(`/api/teacher-stats/${teacherId}`);
     return res.data;
+  },
+  getStudentStats: async (studentId: string) => {
+    const res = await axiosClient.get(`/api/class/student-stats/${studentId}`);
+    return res.data.data;
   },
   updateClass: async (id: string, data: Partial<ClassData>) => {
     const res = await axiosClient.put(`/api/class/${id}`, data);

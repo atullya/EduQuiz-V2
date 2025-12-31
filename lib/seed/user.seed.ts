@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import * as bcrypt from "bcrypt";
 import User from "../models/user.model";
 
-const dbURI: any = process.env.MONGO_URI;
+const dbURI: string = process.env.MONGO_URI || "";
 
 const seedUsers = async () => {
   try {

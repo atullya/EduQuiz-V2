@@ -7,7 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/lib/store/slices/auth/authSlice";
 import { redirect } from "next/navigation";
 import { SideBarItems } from "./SidebarItems";
-import ProfileSection from "./ProfileSection";
+import StudentProfile from "./StudentProfile";
+// import ProfileSection from "./ProfileSection";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -45,8 +46,8 @@ const Sidebar = ({
                 <School className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div className="hidden sm:block">
-                <h2 className="text-lg font-semibold text-gray-900">EduDash</h2>
-                <p className="text-sm text-gray-500">Teacher Portal</p>
+                <h2 className="text-lg font-bold text-gray-900">EduDash</h2>
+                <p className="text-xs text-gray-500">Student Portal</p>
               </div>
             </div>
 
@@ -60,7 +61,7 @@ const Sidebar = ({
             </Button>
           </div>
 
-          {user && <ProfileSection user={user} />}
+          {user && <StudentProfile user={user} />}
 
           <SideBarItems activeTab={activeTab} setActiveTab={setActiveTab} />
 

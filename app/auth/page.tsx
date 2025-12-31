@@ -52,10 +52,8 @@ const LoginPage = () => {
     dispatch(setLoading(true));
 
     try {
-      // Call login API
       const data = await loginUser({ email, password });
 
-      // Dispatch login success to Redux store
       dispatch(
         loginSuccess({
           accessToken: data.accessToken,
@@ -74,8 +72,7 @@ const LoginPage = () => {
 
       if (data.role === "teacher") router.push("/teacher");
       else if (data.role === "admin") router.push("/admin");
-      else if (data.role === "student")
-        window.location.href = "/studentDashboard";
+      else if (data.role === "student") router.push("/student");
       else setError("Unknown role, please contact admin");
     } catch (err: any) {
       setError(err.message || "Login failed");
