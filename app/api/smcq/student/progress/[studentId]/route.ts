@@ -1,24 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-// import QuizAttempt from "@/lib/models/QuizAttempt.model";
 import Classs from "@/lib/models/class.model";
 import QuizAttempt from "@/lib/models/QuizAttempt";
 
-interface Params {
-  studentId: string;
+interface RouteContext {
+  params: Promise<{ studentId: string }>;
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { studentId: string } }
-) {
+export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
-    const { studentId } = params;
+    const { studentId } = await params;
+
     const attempts = await QuizAttempt.find({ student: studentId }).populate(
       "class",
       "name grade section"
     );
 
-    if (!attempts.length)
+    if (!attempts || attempts.length === 0)
       return NextResponse.json({
         success: true,
         message: "No attempts",
@@ -32,14 +29,16 @@ export async function GET(
 
     let totalCorrectAnswers = 0,
       totalQuestionsAnswered = 0;
+
     attempts.forEach((a) =>
-      a.mcqs.forEach((mcq) => {
+      a.mcqs.forEach((mcq: any) => {
         totalQuestionsAnswered++;
         if (mcq.isCorrect) totalCorrectAnswers++;
       })
     );
+
     const averageScore =
-      attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length;
+      attempts.reduce((sum, a) => sum + (a.score || 0), 0) / attempts.length;
 
     return NextResponse.json({
       success: true,
