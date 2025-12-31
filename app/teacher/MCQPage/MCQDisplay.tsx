@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useEffect, ChangeEvent } from "react";
+import { FC, useEffect, useState, ChangeEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ export interface MCQ {
 
 interface MCQDisplayProps {
   mcqs: MCQ[];
-  onExport: (mcqs: MCQ[]) => void;
+  onExport: (mcqs: MCQ[]) => void | Promise<void>;
   isExporting: boolean;
   hasExported: boolean;
 }
@@ -31,11 +31,7 @@ const MCQDisplay: FC<MCQDisplayProps> = ({
   const [editableMCQs, setEditableMCQs] = useState<MCQ[]>([]);
 
   useEffect(() => {
-    if (mcqs && mcqs.length > 0) {
-      setEditableMCQs([...mcqs]);
-    } else {
-      setEditableMCQs([]);
-    }
+    setEditableMCQs(mcqs || []);
   }, [mcqs]);
 
   const handleQuestionChange = (index: number, value: string) => {

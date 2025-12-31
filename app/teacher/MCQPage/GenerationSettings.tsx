@@ -11,16 +11,16 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
-interface FormData {
+interface MCQFormData {
   numberOfQuestions: string;
   chapter: string;
   mcqDuration: string;
-  platform: "text" | "pdf";
+  platform: "text" | "pdf" | "";
 }
 
 interface GenerationSettingsProps {
-  formData: FormData;
-  onSelectChange: (name: string, value: string) => void;
+  formData: MCQFormData;
+  onSelectChange: (name: keyof MCQFormData, value: string) => void;
   onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   isGenerating: boolean;
 }

@@ -6,12 +6,11 @@ import { z } from "zod";
 
 export const runtime = "nodejs";
 
-// ---------- Output Schema ----------
 const outputSchema = z.object({
   quiz: z.array(
     z.object({
       question: z.string(),
-      options: z.array(z.string()).length(4), // enforce exactly 4
+      options: z.array(z.string()).length(4),
       correct_answer: z.string(),
       explanation: z.string(),
     })
@@ -165,6 +164,7 @@ const generateHandler = async (req: NextRequest) => {
     }
 
     const generatedQuestions = await generateMCQs(fullText, count);
+    // console.log("Generated Questions:", generatedQuestions);
     return NextResponse.json({ success: true, data: generatedQuestions });
   } catch (err: any) {
     console.error("API error:", err);

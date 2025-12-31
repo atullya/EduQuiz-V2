@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import OverviewPage from "./OverviewPage";
 import AssignmentPage from "./AssignmentPage";
 import ClassesPage from "./ClassesPage";
+import MCQmain from "../MCQPage/MCQmain";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -33,7 +34,7 @@ const Layout = () => {
           {activeTab === "assignments" && (
             <AssignmentPage setActiveTab={setActiveTab} />
           )}
-          {activeTab === "analytics" && "asdfasf"}
+          {activeTab === "analytics" && <MCQmain setActiveTab={setActiveTab} />}
           {activeTab === "reports" && "asdfasf"}
         </div>
       </main>

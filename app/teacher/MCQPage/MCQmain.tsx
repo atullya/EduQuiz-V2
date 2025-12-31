@@ -3,36 +3,15 @@
 import { ChangeEvent, FC, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
-import MCQDisplay from "./MCQDisplay";
+import MCQDisplay, { MCQ } from "./MCQDisplay";
 import ClassSectionSelector from "./ClassSectionSelector";
 import GenerationSettings from "./GenerationSettings";
 import ContentInput from "./ContentInput";
 import AlertMessages from "./AlertMessages";
 import ActionButtons from "./ActionButtons";
-
-
-
-interface User {
-  _id: string;
-  username?: string;
-  email?: string;
-  role?: string;
-  profile?: {
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
-    address?: string;
-    subjects?: string[];
-  };
-}
-
-interface MCQ {
-  id: number;
-  question: string;
-  options: Record<"A" | "B" | "C" | "D", string>;
-  correct_answer: string;
-  explanation?: string;
-}
+import { generateMCQ, saveMCQ } from "@/lib/store/mcq/mcqapi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store/store";
 
 interface FormData {
   class: string;
@@ -48,10 +27,11 @@ interface FormData {
 }
 
 interface MCQmainProps {
-  user: User;
+  setActiveTab: (tab: string) => void;
 }
 
-const MCQmain: FC<MCQmainProps> = ({ user }) => {
+const MCQmain: FC<MCQmainProps> = ({ setActiveTab }) => {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [formData, setFormData] = useState<FormData>({
     class: "",
     section: "",
@@ -150,49 +130,47 @@ const MCQmain: FC<MCQmainProps> = ({ user }) => {
     setHasExported(false);
 
     try {
-      let apiResponse;
-      if (formData.platform === "text") {
-        apiResponse = await generateFromText(
-          Number(formData.numberOfQuestions),
-          formData.textContent
-        );
-      } else {
-        apiResponse = await generateFromPDF(
-          Number(formData.numberOfQuestions),
-          formData.pdfFile!
-        );
-      }
+      const apiResponse =
+        formData.platform === "text"
+          ? await generateMCQ(
+              formData.textContent,
+              Number(formData.numberOfQuestions)
+            )
+          : await generateMCQ(
+              formData.pdfFile!,
+              Number(formData.numberOfQuestions)
+            );
 
-      let mcqsData: any[] = [];
-      if (Array.isArray(apiResponse)) mcqsData = apiResponse;
-      else if (apiResponse?.success && Array.isArray(apiResponse.mcqs))
-        mcqsData = apiResponse.mcqs;
-      else {
+      if (!apiResponse?.success || !Array.isArray(apiResponse.data)) {
         setError(apiResponse?.message || "API returned invalid data.");
         return;
       }
 
-      const transformed: MCQ[] = mcqsData.map((mcq, index) => {
-        const options: Record<"A" | "B" | "C" | "D", string> = {
-          A: "",
-          B: "",
-          C: "",
-          D: "",
-        };
-        ["A", "B", "C", "D"].forEach((label, i) => {
-          options[label as keyof typeof options] = mcq.options[i] || "";
-        });
-        const correctKey = Object.entries(options).find(
-          ([, val]) => val === mcq.answer
-        )?.[0] as "A" | "B" | "C" | "D" | undefined;
-        return {
-          id: index + 1,
-          question: mcq.question,
-          options,
-          correct_answer: correctKey || "",
-          explanation: mcq.explanation || "",
-        };
-      });
+      const transformed: MCQ[] = apiResponse.data.map(
+        (mcq: any, index: number) => {
+          const options: Record<"A" | "B" | "C" | "D", string> = {
+            A: mcq.options[0]?.value || "",
+            B: mcq.options[1]?.value || "",
+            C: mcq.options[2]?.value || "",
+            D: mcq.options[3]?.value || "",
+          };
+
+          const correctKey =
+            (["A", "B", "C", "D"] as const).find(
+              (key) =>
+                options[key] === mcq.correct_answer ||
+                options[key] === mcq.answer
+            ) || "A";
+
+          return {
+            id: index + 1,
+            question: mcq.question || "",
+            options,
+            correct_answer: correctKey,
+            explanation: mcq.explanation || "",
+          };
+        }
+      );
 
       setGeneratedMCQs(transformed);
       setSuccess(true);
@@ -209,30 +187,10 @@ const MCQmain: FC<MCQmainProps> = ({ user }) => {
   };
 
   const handleExportMCQs = async (updatedMCQs = generatedMCQs) => {
+    if (!user) return setError("You must be logged in to export MCQs.");
     if (hasExported) return setError("You have already exported these MCQs.");
     if (updatedMCQs.length === 0) return setError("No MCQs to export.");
-
-    const invalidMCQs = updatedMCQs.filter(
-      (mcq) =>
-        !mcq.question.trim() ||
-        !mcq.options.A.trim() ||
-        !mcq.options.B.trim() ||
-        !mcq.options.C.trim() ||
-        !mcq.options.D.trim() ||
-        !mcq.correct_answer
-    );
-    if (invalidMCQs.length > 0)
-      return setError(
-        "Please fill all questions, options, and correct answers before exporting."
-      );
-    if (!formData.classId || !formData.section || !user._id)
-      return setError("Select class/section and make sure you're logged in.");
-    if (
-      !formData.mcqDuration ||
-      isNaN(Number(formData.mcqDuration)) ||
-      Number(formData.mcqDuration) <= 0
-    )
-      return setError("Enter valid MCQ duration before exporting.");
+    if (!user._id) return setError("User ID is missing. Cannot export MCQs.");
 
     setIsExporting(true);
     setError("");
@@ -240,11 +198,11 @@ const MCQmain: FC<MCQmainProps> = ({ user }) => {
     setSuccessMessage("");
 
     try {
-      const response = await saveMCQs(
+      const response = await saveMCQ(
         updatedMCQs,
         formData.classId,
         formData.section,
-        user._id,
+        user._id, // Now guaranteed to exist
         Number(formData.mcqDuration),
         formData.subject,
         formData.chapter
@@ -252,9 +210,7 @@ const MCQmain: FC<MCQmainProps> = ({ user }) => {
 
       if (response.success) {
         setSuccess(true);
-        setSuccessMessage(
-          `Successfully exported ${response.savedCount} MCQs!`
-        );
+        setSuccessMessage(`Successfully exported ${response.savedCount} MCQs!`);
         setHasExported(true);
       } else {
         setError(response.message || "Export failed.");
@@ -306,12 +262,14 @@ const MCQmain: FC<MCQmainProps> = ({ user }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
-            <ClassSectionSelector
-              user={user}
-              formData={formData}
-              onSelectChange={handleSelectChange}
-              isGenerating={isGenerating}
-            />
+            {user && (
+              <ClassSectionSelector
+                user={user}
+                formData={formData}
+                onSelectChange={handleSelectChange}
+                isGenerating={isGenerating}
+              />
+            )}
             <GenerationSettings
               formData={formData}
               onSelectChange={handleSelectChange}
@@ -323,6 +281,7 @@ const MCQmain: FC<MCQmainProps> = ({ user }) => {
               onInputChange={handleInputChange}
               onFileChange={handleFileChange}
               isGenerating={isGenerating}
+              isSetupNeeded={false}
             />
             <AlertMessages
               error={error}

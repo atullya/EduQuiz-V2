@@ -6,8 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 
-interface FormData {
-  platform: "text" | "pdf";
+interface ContentInputFormData {
+  platform: "" | "text" | "pdf";
   class: string;
   section: string;
   textContent: string;
@@ -15,7 +15,7 @@ interface FormData {
 }
 
 interface ContentInputProps {
-  formData: FormData;
+  formData: ContentInputFormData;
   onInputChange: (
     e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;

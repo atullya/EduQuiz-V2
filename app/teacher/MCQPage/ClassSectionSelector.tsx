@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GraduationCap, Users, BookOpenCheck } from "lucide-react";
+import { teacherStats } from "@/lib/store/teachers/teacherapi";
 
 interface AssignedClass {
   classId: string;
@@ -30,7 +31,7 @@ interface ClassSectionSelectorProps {
   formData: FormData;
   onSelectChange: (field: keyof FormData, value: string) => void;
   isGenerating: boolean;
-  assignedClasses?: AssignedClass[]; // optional, can be passed later
+  assignedClasses?: AssignedClass[];
 }
 
 const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
@@ -47,49 +48,95 @@ const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
   const [availableSections, setAvailableSections] = useState<string[]>([]);
   const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
 
-  // Setup grades from assignedClasses
+  // Fetch assigned classes for the teacher
   useEffect(() => {
-    const uniqueGrades = [...new Set(assignedClasses.map((cls) => cls.grade))];
-    setAvailableGrades(uniqueGrades);
-  }, [assignedClasses]);
+    const fetchClasses = async () => {
+      if (!user?._id || user.role !== "teacher") return;
 
-  // Update sections based on selected grade
+      try {
+        const response = await teacherStats(user._id);
+        const classData: AssignedClass[] = response?.classStudentCounts || [];
+        setAssignedClasses(classData);
+
+        const uniqueGrades = [...new Set(classData.map((cls) => cls.grade))];
+        setAvailableGrades(uniqueGrades);
+      } catch (err: any) {
+        console.error("Failed to fetch assigned classes:", err.message);
+      }
+    };
+
+    fetchClasses();
+  }, [user?._id, user?.role]);
+
+  // Update available sections when grade changes
   useEffect(() => {
-    if (formData.class) {
-      const sections = assignedClasses
-        .filter((cls) => cls.grade === formData.class)
-        .map((cls) => cls.section);
-      setAvailableSections([...new Set(sections)]);
-    } else {
+    if (!formData.class) {
       setAvailableSections([]);
+      return;
     }
-  }, [formData.class, assignedClasses]);
 
-  // Update subjects based on selected grade + section
+    const sections = assignedClasses
+      .filter((cls) => cls.grade === formData.class)
+      .map((cls) => cls.section);
+
+    setAvailableSections([...new Set(sections)]);
+
+    if (!sections.includes(formData.section) && formData.section !== "") {
+      onSelectChange("section", "");
+      onSelectChange("subject", "");
+    }
+  }, [formData.class, assignedClasses, formData.section, onSelectChange]);
+
+  // Update available subjects when section changes
   useEffect(() => {
-    if (formData.class && formData.section) {
-      const selectedClass = assignedClasses.find(
-        (cls) =>
-          cls.grade === formData.class && cls.section === formData.section
-      );
-      setAvailableSubjects(selectedClass?.subject || []);
-    } else {
+    if (!formData.class || !formData.section) {
       setAvailableSubjects([]);
+      return;
     }
-  }, [formData.class, formData.section, assignedClasses]);
 
-  // Update classId when class + section changes
+    const selectedClass = assignedClasses.find(
+      (cls) => cls.grade === formData.class && cls.section === formData.section
+    );
+
+    setAvailableSubjects(selectedClass?.subject || []);
+
+    if (
+      selectedClass &&
+      !selectedClass.subject.includes(formData.subject) &&
+      formData.subject !== ""
+    ) {
+      onSelectChange("subject", "");
+    }
+  }, [
+    formData.class,
+    formData.section,
+    assignedClasses,
+    formData.subject,
+    onSelectChange,
+  ]);
+
+  // Update classId when class or section changes
   useEffect(() => {
     if (formData.class && formData.section) {
       const selectedClass = assignedClasses.find(
         (cls) =>
           cls.grade === formData.class && cls.section === formData.section
       );
-      onSelectChange("classId", selectedClass?.classId || "");
+
+      const newClassId = selectedClass?.classId || "";
+      if (newClassId !== formData.classId) {
+        onSelectChange("classId", newClassId);
+      }
     } else if (formData.classId !== "") {
       onSelectChange("classId", "");
     }
-  }, [formData.class, formData.section, assignedClasses, onSelectChange]);
+  }, [
+    formData.class,
+    formData.section,
+    assignedClasses,
+    formData.classId,
+    onSelectChange,
+  ]);
 
   return (
     <div className="space-y-6 p-6 bg-white rounded-lg border border-gray-200">
@@ -99,8 +146,9 @@ const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
           Select the target class, section, and subject
         </p>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Grade */}
+        {/* Grade Selector */}
         <div className="space-y-2">
           <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <GraduationCap className="h-4 w-4" />
@@ -108,11 +156,7 @@ const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
           </Label>
           <Select
             value={formData.class}
-            onValueChange={(value) => {
-              onSelectChange("class", value);
-              onSelectChange("section", "");
-              onSelectChange("subject", "");
-            }}
+            onValueChange={(value) => onSelectChange("class", value)}
             disabled={isGenerating}
           >
             <SelectTrigger className="h-10">
@@ -128,18 +172,15 @@ const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
           </Select>
         </div>
 
-        {/* Section */}
+        {/* Section Selector */}
         <div className="space-y-2">
           <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <Users className="h-4 w-4" />
             Section
           </Label>
           <Select
-            value={formData.section}
-            onValueChange={(value) => {
-              onSelectChange("section", value);
-              onSelectChange("subject", "");
-            }}
+            value={formData.section || ""}
+            onValueChange={(value) => onSelectChange("section", value)}
             disabled={isGenerating || !formData.class}
           >
             <SelectTrigger className="h-10">
@@ -159,7 +200,7 @@ const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
           </Select>
         </div>
 
-        {/* Subject */}
+        {/* Subject Selector */}
         <div className="space-y-2">
           <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <BookOpenCheck className="h-4 w-4" />
@@ -184,12 +225,13 @@ const ClassSectionSelector: FC<ClassSectionSelectorProps> = ({
         </div>
       </div>
 
+      {/* Selected Info */}
       {formData.class && formData.section && (
         <div className="p-3 bg-gray-50 rounded border text-center">
           <span className="text-sm text-gray-600">
             Selected: Grade {formData.class}, Section {formData.section}
             {formData.subject && `, Subject: ${formData.subject}`}
-            {formData.classId && ` (ID: ${formData.classId})`}
+            {formData.classId && ` `}
           </span>
         </div>
       )}
