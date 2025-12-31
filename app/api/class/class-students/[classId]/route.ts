@@ -12,15 +12,12 @@ export const GET = withAuth(
         { message: "Class ID required" },
         { status: 400 }
       );
-
+    // console.log(user)
     const cls = await Classs.findById(classId).populate("students", "username");
     if (!cls)
       return NextResponse.json({ message: "Class not found" }, { status: 404 });
 
-    if (
-      user.role !== "admin" &&
-      !(user.role === "teacher" && user._id === cls.teacher.toString())
-    ) {
+    if (user.role !== "teacher") {
       return NextResponse.json({ message: "Not authorized" }, { status: 403 });
     }
 

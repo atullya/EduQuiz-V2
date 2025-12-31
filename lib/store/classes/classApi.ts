@@ -45,4 +45,8 @@ export const classApi = {
     const res = await axiosClient.delete(`/api/class/delete/${id}`);
     return res.data;
   },
+  getStudentsByClass: async (id: string) => {
+    const res = await axiosClient.get(`/api/class/class-students/${id}`);
+    return res.data;
+  },
 };

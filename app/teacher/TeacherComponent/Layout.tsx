@@ -3,6 +3,7 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import OverviewPage from "./OverviewPage";
 import AssignmentPage from "./AssignmentPage";
+import ClassesPage from "./ClassesPage";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -26,7 +27,9 @@ const Layout = () => {
           {activeTab === "overview" && (
             <OverviewPage setActiveTab={setActiveTab} />
           )}
-          {activeTab === "classes" && "asdfasf"}
+          {activeTab === "classes" && (
+            <ClassesPage setActiveTab={setActiveTab} />
+          )}
           {activeTab === "assignments" && (
             <AssignmentPage setActiveTab={setActiveTab} />
           )}

@@ -65,7 +65,7 @@ const LoginPage = () => {
             email: data.email,
             username: data.username,
             role: data.role,
-            profile: {},
+            profile: data.profile,
           },
         })
       );

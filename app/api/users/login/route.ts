@@ -33,6 +33,7 @@ export const POST = asyncHandler(async (req: NextRequest) => {
     username: userValid.username,
     email: userValid.email,
     role: userValid.role,
+    profile: userValid.profile,
     success: true,
     message: "Login successful",
     accessToken: token,

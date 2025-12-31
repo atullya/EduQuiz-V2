@@ -1,12 +1,14 @@
-"use client";  // Ensure this is at the top of the file to enable client-side rendering
+"use client";
 
 import { School, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/lib/store/slices/auth/authapi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/lib/store/slices/auth/authSlice";
 import { redirect } from "next/navigation";
 import { SideBarItems } from "./SidebarItems";
+import ProfileSection from "./ProfileSection";
+
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -21,8 +23,10 @@ const Sidebar = ({
   setActiveTab,
 }: SidebarProps) => {
   const dispatch = useDispatch();
+  const user = useSelector((state: any) => state.auth.user);
+
   const handleLogout = async () => {
-    const res = await logoutUser();
+    await logoutUser();
     dispatch(logout());
     redirect("/auth");
   };
@@ -35,7 +39,6 @@ const Sidebar = ({
         } lg:translate-x-0`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -46,6 +49,7 @@ const Sidebar = ({
                 <p className="text-sm text-gray-500">Admin Portal</p>
               </div>
             </div>
+
             <Button
               variant="ghost"
               size="sm"
@@ -56,21 +60,7 @@ const Sidebar = ({
             </Button>
           </div>
 
-          <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-base sm:text-lg">
-                A
-              </div>
-              <div className="flex-1 min-w-0 hidden sm:block">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  Admin
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  System Administrator
-                </p>
-              </div>
-            </div>
-          </div>
+          {user && <ProfileSection user={user} />}
 
           <SideBarItems activeTab={activeTab} setActiveTab={setActiveTab} />
 

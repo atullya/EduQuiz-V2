@@ -1,3 +1,4 @@
+import { profile } from "console";
 import axios from "axios";
 import axiosClient from "../../axiosClient";
 
@@ -13,6 +14,7 @@ export interface LoginResponse {
   username: string;
   email: string;
   role: string;
+  profile?: object;
 }
 
 export const loginUser = async (data: LoginRequest): Promise<LoginResponse> => {
