@@ -1,15 +1,25 @@
 "use client";
 
-import { BookOpen, Users, FileText, Home, BarChart3, Settings } from "lucide-react"
+import {
+  BookOpen,
+  Users,
+  FileText,
+  Home,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 
 interface SideBarItemsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-export const SideBarItems = ({ activeTab, setActiveTab }: SideBarItemsProps) => {
+export const SideBarItems = ({
+  activeTab,
+  setActiveTab,
+}: SideBarItemsProps) => {
   const sidebarItems = [
-      { id: "overview", label: "Overview", icon: Home },
+    { id: "overview", label: "Overview", icon: Home },
     { id: "classes", label: "My Classes", icon: BookOpen },
     { id: "assignments", label: "Assignments", icon: FileText },
     // { id: "students", label: "Students", icon: Users },

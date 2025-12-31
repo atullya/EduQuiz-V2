@@ -16,7 +16,7 @@ export const generateMCQ = async (
     headers: { "Content-Type": "multipart/form-data" },
   });
 
-  return res.data; // return full object with success & data
+  return res.data;
 };
 
 export const saveMCQ = async (
@@ -42,5 +42,18 @@ export const saveMCQ = async (
     return res.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.message || "MCQ Saving failed");
+  }
+};
+
+export const getMCQwithClasses = async (teacherId: string): Promise<any> => {
+  try {
+    const res = await axiosClient.get(
+      `/api/mcq/classes-with-mcqs/${teacherId}`
+    );
+    return res.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || "Fetching MCQ classes failed"
+    );
   }
 };

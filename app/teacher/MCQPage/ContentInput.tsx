@@ -51,9 +51,6 @@ const ContentInput: FC<ContentInputProps> = ({
           className="min-h-[200px] text-base border-2 border-gray-200 focus:border-blue-500 resize-none"
           disabled={isGenerating || isSetupNeeded || !isClassSectionSelected}
         />
-        <p className="text-sm text-gray-500">
-          💡 Tip: Provide detailed content for better question generation
-        </p>
       </div>
     );
   }

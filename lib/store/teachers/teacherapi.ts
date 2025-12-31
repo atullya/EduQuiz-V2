@@ -24,7 +24,7 @@ export const getMyAssignedWithSubmissions = async () => {
 
 export const deleteAssignedAssignment = async (assignmentID: string) => {
   const response = await axiosClient.delete(
-    `/api/assignment/my-assigned/${assignmentID}`
+    `/api/assignment/delete/${assignmentID}`
   );
   return response.data;
 };

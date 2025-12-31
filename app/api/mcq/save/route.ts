@@ -25,7 +25,10 @@ const saveMCQHandler = async (req: NextRequest) => {
 
   const formatted = mcqs.map((mcq) => ({
     question: mcq.question,
-    options: mcq.options,
+    options: Object.entries(mcq.options).map(([key, value]) => ({
+      key,
+      value,
+    })),
     correct_answer: mcq.correct_answer,
     explanation: mcq.explanation || "",
     class: classId,
@@ -33,7 +36,7 @@ const saveMCQHandler = async (req: NextRequest) => {
     subject,
     chapter,
     duration,
-    createdBy: teacherId,
+    teacher: teacherId,
   }));
 
   await MCQ.insertMany(formatted);
