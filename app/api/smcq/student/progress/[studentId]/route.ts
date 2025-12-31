@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 // import QuizAttempt from "@/lib/models/QuizAttempt.model";
 import Classs from "@/lib/models/class.model";
 import QuizAttempt from "@/lib/models/QuizAttempt";
@@ -7,7 +7,10 @@ interface Params {
   studentId: string;
 }
 
-export const GET = async (req: Request, { params }: { params: Params }) => {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { studentId: string } }
+) {
   try {
     const { studentId } = params;
     const attempts = await QuizAttempt.find({ student: studentId }).populate(
@@ -55,4 +58,4 @@ export const GET = async (req: Request, { params }: { params: Params }) => {
       { status: 500 }
     );
   }
-};
+}

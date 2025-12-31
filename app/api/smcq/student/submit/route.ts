@@ -7,7 +7,6 @@ import QuizAttempt from "@/lib/models/QuizAttempt";
 import mongoose from "mongoose";
 import { withAuth } from "@/lib/middleware/withAuth";
 
-// Define the shape of the incoming answer from the request body
 interface RawAnswer {
   mcqId: string;
   selectedOption: string; // The ID of the option selected by student
@@ -32,7 +31,6 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
       answers: RawAnswer[];
     } = body;
 
-    // 1. Validation: Check if all required fields exist
     if (
       !studentId ||
       !classId ||
@@ -47,7 +45,6 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
       );
     }
 
-    // 2. Student Verification
     const student = await User.findById(studentId);
     if (!student || student.role !== "student") {
       return NextResponse.json(
@@ -56,7 +53,6 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
       );
     }
 
-    // 3. Fetch all MCQs involved in this quiz
     const mcqIds = answers.map((a) => a.mcqId);
     const mcqs = await MCQ.find({ _id: { $in: mcqIds } });
 
@@ -67,11 +63,9 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
       );
     }
 
-    // 4. Grading Logic
     let correctCount = 0;
 
     const detailedAnswers = answers.map((ans) => {
-      // Find the corresponding MCQ document
       const mcqDoc = mcqs.find((m) => m._id.toString() === ans.mcqId);
 
       if (!mcqDoc) {
@@ -83,12 +77,10 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
         };
       }
 
-      // Find the option selected by the student to get its Key (A, B, C, etc.)
       const selectedOptionObj = mcqDoc.options.find(
         (o: any) => o._id.toString() === ans.selectedOption
       );
 
-      // Compare selected key with the stored correct_answer
       const isCorrect = selectedOptionObj?.key === mcqDoc.correct_answer;
 
       if (isCorrect) correctCount++;
@@ -101,10 +93,8 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
       };
     });
 
-    // 5. Calculate final percentage score
     const score = (correctCount / mcqs.length) * 100;
 
-    // 6. Save the Attempt using the QuizAttempt model
     const quizAttempt = new QuizAttempt({
       student: studentId,
       class: classId,
@@ -119,7 +109,6 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
 
     await quizAttempt.save();
 
-    // Success Response
     return NextResponse.json({
       success: true,
       message: "Quiz submitted successfully",
