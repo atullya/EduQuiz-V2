@@ -11,11 +11,11 @@ export const GET = withAuth(
   asyncHandler(async (req: NextRequest, user) => {
     if (user.role !== "student")
       throw new APIError("Only students can submit", 403);
-    console.log("Authenticated User:", user);
+
     const studentUser = await User.findById(user._id)
       .select("profile.class profile.section")
       .lean();
-    console.log("Student User Profile:", studentUser);
+
     if (
       !studentUser ||
       !studentUser.profile ||

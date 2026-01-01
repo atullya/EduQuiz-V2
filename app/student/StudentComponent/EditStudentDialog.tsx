@@ -9,10 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useDispatch } from "react-redux";
+import { Eye, EyeOff } from "lucide-react";
 import { editUser } from "@/lib/store/slices/auth/authapi";
-import { loginSuccess } from "@/lib/store/slices/auth/authSlice";
-import { useSelector } from "react-redux";
+
 interface ProfileData {
   profile: {
     firstName: string;
@@ -37,23 +36,23 @@ interface EditProfileDialogProps {
   };
 }
 
-const EditStudentDialog: React.FC<EditProfileDialogProps> = ({
+const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
   open,
   onOpenChange,
   teacherId,
   existingData,
 }) => {
   const [profileData, setProfileData] = useState<ProfileData>({
-    profile: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-    },
+    profile: { firstName: "", lastName: "", phone: "" },
     email: "",
     password: "",
   });
-  const dispatch = useDispatch();
-  const [error, setError] = useState<string>("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const isProduction = process.env.NODE_ENV === "production";
+
   useEffect(() => {
     if (open) {
       setProfileData({
@@ -78,38 +77,14 @@ const EditStudentDialog: React.FC<EditProfileDialogProps> = ({
         profile: { ...prev.profile, [key]: value },
       }));
     } else {
-      setProfileData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setProfileData((prev) => ({ ...prev, [name]: value }));
     }
   };
-  const currentUser = useSelector((state: any) => state.auth.user);
-  const handleProfileUpdate = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const response = await editUser(teacherId, profileData);
-
-      const updatedUser = response.data;
-
-      const mergedUser = {
-        ...currentUser,
-        ...updatedUser,
-        profile: {
-          ...currentUser.profile,
-          ...updatedUser.profile,
-        },
-      };
-
-      dispatch(
-        loginSuccess({
-          accessToken: localStorage.getItem("auth_token")!,
-          refreshToken: localStorage.getItem("auth_refresh_token")!,
-          user: mergedUser,
-        })
-      );
-
+      await editUser(teacherId, profileData);
       onOpenChange(false);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Update failed");
@@ -126,7 +101,7 @@ const EditStudentDialog: React.FC<EditProfileDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleProfileUpdate} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>First Name</Label>
@@ -156,14 +131,34 @@ const EditStudentDialog: React.FC<EditProfileDialogProps> = ({
             />
           </div>
 
-          <div>
+          {/* PASSWORD FIELD */}
+          <div className="relative">
             <Label>New Password</Label>
+
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={profileData.password}
               onChange={handleInputChange}
+              className="pr-10"
             />
+
+            <button
+              type="button"
+              disabled={isProduction}
+              onClick={() => {
+                if (!isProduction) setShowPassword(!showPassword);
+              }}
+              className={`absolute right-3 top-6
+                ${
+                  isProduction
+                    ? "cursor-not-allowed text-gray-300"
+                    : "text-gray-500 hover:text-gray-700"
+                }
+              `}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -175,8 +170,8 @@ const EditStudentDialog: React.FC<EditProfileDialogProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
               className="flex-1"
+              onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
@@ -187,4 +182,4 @@ const EditStudentDialog: React.FC<EditProfileDialogProps> = ({
   );
 };
 
-export default EditStudentDialog;
+export default EditProfileDialog;

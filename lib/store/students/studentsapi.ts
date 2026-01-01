@@ -17,13 +17,15 @@ export const getStudentAssignments = async () => {
   console.log("Assignments Response:", response.data);
   return response.data;
 };
-export const submitAssignemnt = async (
-  assignmentId: string,
-  submissionText: string
-) => {
+export const submitAssignemnt = async (id: string, formData: FormData) => {
   const response = await axiosClient.post(
-    `/api/assignment/submit/${assignmentId}`,
-    { submissionText }
+    `/api/assignment/submit/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
   return response.data;
 };

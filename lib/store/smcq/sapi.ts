@@ -3,6 +3,22 @@ import axiosClient from "../axiosClient";
 // -------------------- Student APIs --------------------
 
 // 1. Fetch quizzes for student
+// export const fetchStudentQuizzes = async (
+//   studentId: string,
+//   classId: string,
+//   section: string,
+//   subject: string,
+//   chapter?: string
+// ): Promise<any> => {
+//   const params = new URLSearchParams({ studentId, classId, section, subject });
+//   if (chapter) params.append("chapter", chapter);
+
+//   const res = await axiosClient.get(
+//     `/api/smcq/student/quizzes?${params.toString()}`
+//   );
+//   return res.data;
+// };
+
 export const fetchStudentQuizzes = async (
   studentId: string,
   classId: string,
@@ -19,7 +35,6 @@ export const fetchStudentQuizzes = async (
   return res.data;
 };
 
-// 2. Submit student quiz
 export const submitStudentQuiz = async (
   studentId: string,
   classId: string,
@@ -62,6 +77,15 @@ export const viewStudentQuizDetails = async (
   });
   const res = await axiosClient.get(
     `/api/smcq/student/view-details?${params.toString()}`
+  );
+  return res.data;
+};
+
+export const getClassesWithQuizzes = async (
+  studentId: string
+): Promise<any> => {
+  const res = await axiosClient.get(
+    `/api/mcq/student/classes-with-quizzes/${studentId}`
   );
   return res.data;
 };

@@ -3,6 +3,9 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import OverviewPage from "./OverviewPage";
 import AssignmentStudent from "./AssignmentStudent";
+import MyClasses from "./MyClasses";
+import MainMCQ from "../TakeMCQPage/MainMCQ";
+import StudentProgress from "./StudentProgress";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -29,10 +32,12 @@ const Layout = () => {
           {activeTab === "assignment" && (
             <AssignmentStudent setActiveTab={setActiveTab} />
           )}
-          {activeTab === "teachers" && "asdfasdfsadf"}
-          {activeTab === "classes" && "asdfasdf"}
-          {activeTab === "quiz" && "asdfasdf"}
-          {activeTab === "reports" && "asdfasdf"}
+
+          {activeTab === "classes" && <MyClasses setActiveTab={setActiveTab} />}
+          {activeTab === "quiz" && <MainMCQ setActiveTab={setActiveTab} />}
+          {activeTab === "reports" && (
+            <StudentProgress setActiveTab={setActiveTab} />
+          )}
         </div>
       </main>
     </div>

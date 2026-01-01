@@ -84,6 +84,7 @@ const SubmitAssignmentDialogue: React.FC<SubmitAssignmentDialogueProps> = ({
       setError("Please provide submission text.");
       return;
     }
+
     if (submissionType === "pdf" && !file && !existingPdfName) {
       setError("Please upload a PDF file.");
       return;
@@ -98,11 +99,14 @@ const SubmitAssignmentDialogue: React.FC<SubmitAssignmentDialogueProps> = ({
         "submissionText",
         submissionType === "text" ? submissionText : ""
       );
+
       if (submissionType === "pdf" && file) {
         formData.append("file", file);
       }
 
-      const res = await submitAssignemnt(assignment!._id, "farmData");
+      if (!assignment) throw new Error("No assignment selected.");
+
+      const res = await submitAssignemnt(assignment._id, formData);
 
       if (res.success) {
         onSubmissionSuccess();

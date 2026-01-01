@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import { Eye, EyeOff } from "lucide-react";
 import { editUser } from "@/lib/store/slices/auth/authapi";
 
 interface ProfileData {
@@ -52,7 +52,11 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
     password: "",
   });
 
-  const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const isProduction = process.env.NODE_ENV === "production";
+
   useEffect(() => {
     if (open) {
       setProfileData({
@@ -77,10 +81,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
         profile: { ...prev.profile, [key]: value },
       }));
     } else {
-      setProfileData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setProfileData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -134,14 +135,30 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
             />
           </div>
 
-          <div>
+          <div className="relative">
             <Label>New Password</Label>
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={profileData.password}
               onChange={handleInputChange}
+              className="pr-10"
             />
+
+            <button
+              type="button"
+              disabled={isProduction}
+              onClick={() => {
+                if (!isProduction) setShowPassword(!showPassword);
+              }}
+              className={`absolute right-3 top-6 ${
+                isProduction
+                  ? "cursor-not-allowed text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -153,8 +170,8 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
               className="flex-1"
+              onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>

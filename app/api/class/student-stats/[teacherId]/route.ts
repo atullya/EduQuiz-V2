@@ -30,7 +30,8 @@ export const GET = withAuth(
         });
 
         const quizCount = await MCQ.countDocuments({
-          classId: cls._id,
+          class: cls._id,
+          status: "published",
         });
 
         return {

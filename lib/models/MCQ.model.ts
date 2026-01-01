@@ -52,7 +52,7 @@ const mcqSchema = new mongoose.Schema<IMCQ>({
   },
 
   duration: { type: Number, default: 0 },
-  status: { type: String, enum: ["draft", "published"], default: "draft" },
+  status: { type: String, enum: ["draft", "published"], default: "published" },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

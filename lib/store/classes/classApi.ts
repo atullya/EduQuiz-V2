@@ -40,6 +40,7 @@ export const classApi = {
   },
   getStudentStats: async (studentId: string) => {
     const res = await axiosClient.get(`/api/class/student-stats/${studentId}`);
+
     return res.data.data;
   },
   updateClass: async (id: string, data: Partial<ClassData>) => {

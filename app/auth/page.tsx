@@ -1,10 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-// import { loginUser } from "@/store/api/authApi"; // Axios login API
-// import { loginSuccess, setLoading } from "@/store/slices/authSlice";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +30,8 @@ import {
   Users,
   Brain,
 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+
 import { loginSuccess, setLoading } from "@/lib/store/slices/auth/authSlice";
 import { loginUser } from "@/lib/store/slices/auth/authapi";
 
@@ -42,9 +41,11 @@ const LoginPage = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -84,13 +85,14 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Navbar */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <GraduationCap className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">EduQuiz</span>
+              <span className="text-xl font-bold text-gray-900 cursor-pointer">
+                EduQuiz
+              </span>
             </div>
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -147,7 +149,7 @@ const LoginPage = () => {
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             id="password"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             name="password"
                             value={password}
                             placeholder="Enter your password"
@@ -156,6 +158,17 @@ const LoginPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={isLoading}
                           />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                          >
+                            {showPassword ? (
+                              <EyeOff size={18} />
+                            ) : (
+                              <Eye size={18} />
+                            )}
+                          </button>
                         </div>
                       </div>
                     </CardContent>
@@ -185,7 +198,7 @@ const LoginPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-8">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-8 cursor-default">
         <div className="max-w-4xl text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6 text-balance">
             EduQuiz - Teacher Student Portal with MCQ Generation
