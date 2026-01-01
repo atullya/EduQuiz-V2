@@ -140,9 +140,16 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
             <Input
               type={showPassword ? "text" : "password"}
               name="password"
+              disabled={isProduction}
               value={profileData.password}
               onChange={handleInputChange}
-              className="pr-10"
+              className={`pr-10
+                          ${
+                            isProduction
+                              ? "cursor-not-allowed text-gray-300"
+                              : "text-gray-500 hover:text-gray-700"
+                          }
+                        `}
             />
 
             <button
