@@ -1,8 +1,10 @@
 "use client";
+
+import type React from "react";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,8 +31,10 @@ import {
   BookOpen,
   Users,
   Brain,
+  ShieldCheck,
+  Eye,
+  EyeOff,
 } from "lucide-react";
-import { Eye, EyeOff } from "lucide-react";
 
 import { loginSuccess, setLoading } from "@/lib/store/slices/auth/authSlice";
 import { loginUser } from "@/lib/store/slices/auth/authapi";
@@ -45,6 +49,16 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleDemoLogin = (role: "admin" | "teacher" | "student") => {
+    const credentials = {
+      admin: { email: "admin@eduquiz.com", pass: "admin123" },
+      teacher: { email: "teacher@eduquiz.com", pass: "teacher123" },
+      student: { email: "student@eduquiz.com", pass: "student123" },
+    };
+    setEmail(credentials[role].email);
+    setPassword(credentials[role].pass);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -99,7 +113,7 @@ const LoginPage = () => {
               <DialogTrigger asChild>
                 <Button>Login</Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogTitle className="sr-only">Login</DialogTitle>
 
                 <Card className="border-0 shadow-none">
@@ -171,9 +185,66 @@ const LoginPage = () => {
                           </button>
                         </div>
                       </div>
+
+                      <div className="pt-4 border-t border-gray-100">
+                        <p className="text-xs font-medium text-gray-500 mb-3 uppercase tracking-wider">
+                          Quick Demo Access
+                        </p>
+                        <div className="grid grid-cols-1 gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            type="button"
+                            className="justify-start h-auto py-2 px-3 text-left bg-transparent"
+                            onClick={() => handleDemoLogin("admin")}
+                          >
+                            <ShieldCheck className="h-4 w-4 mr-2 text-red-500" />
+                            <div>
+                              <div className="text-xs font-semibold">Admin</div>
+                              <div className="text-[12px] text-gray-600">
+                                admin@eduquiz.com / admin123
+                              </div>
+                            </div>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            type="button"
+                            className="justify-start h-auto py-2 px-3 text-left bg-transparent"
+                            onClick={() => handleDemoLogin("teacher")}
+                          >
+                            <BookOpen className="h-4 w-4 mr-2 text-blue-500" />
+                            <div>
+                              <div className="text-xs font-semibold">
+                                Teacher
+                              </div>
+                              <div className="text-[12px] text-gray-600">
+                                teacher@eduquiz.com / teacher123
+                              </div>
+                            </div>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            type="button"
+                            className="justify-start h-auto py-2 px-3 text-left bg-transparent"
+                            onClick={() => handleDemoLogin("student")}
+                          >
+                            <Users className="h-4 w-4 mr-2 text-purple-500" />
+                            <div>
+                              <div className="text-xs font-semibold">
+                                Student
+                              </div>
+                              <div className="text-[12px] text-gray-600">
+                                student@eduquiz.com / student123
+                              </div>
+                            </div>
+                          </Button>
+                        </div>
+                      </div>
                     </CardContent>
 
-                    <CardFooter className="flex flex-col space-y-4 mt-6">
+                    <CardFooter className="flex flex-col space-y-4 mt-2">
                       <Button
                         type="submit"
                         className="w-full"
@@ -197,7 +268,6 @@ const LoginPage = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-8 cursor-default">
         <div className="max-w-4xl text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6 text-balance">
